@@ -47,7 +47,7 @@
 
 ## 功能清单
 ### 功能一览
-<img width="749" alt="功能预览" src="https://github.com/user-attachments/assets/7072fe1c-e2b3-47e9-bd50-e5266523edf1">
+<img width="749" alt="image" src="https://github.com/user-attachments/assets/8cf5911b-4603-4aa0-8e24-0acb0c616a82" />
 
 - RTSP[S]
   - RTSP[S] 服务器，支持RTMP/MP4/HLS转RTSP[S],支持亚马逊echo show这样的设备
@@ -131,8 +131,6 @@
   - 支持webrtc over tcp模式
   - 优秀的nack、jitter buffer算法, 抗丢包能力卓越
   - 支持whip/whep协议
-  - [支持ice-full,支持作为webrtc客户端拉流、推流以及p2p模式](./webrtc/USAGE.md)
-  
 - [SRT支持](./srt/srt.md)
 - 其他
   - 支持丰富的restful api以及web hook事件 
@@ -431,3 +429,145 @@ bash build_docker_images.sh
 本项目已经得到不少公司和个人开发者的认可，据作者不完全统计，
 使用本项目的公司包括知名的互联网巨头、国内排名前列的云服务公司、多家知名的AI独角兽公司，
 以及一系列中小型公司。使用者可以通过在 [issue](https://github.com/ZLMediaKit/ZLMediaKit/issues/511) 上粘贴公司的大名和相关项目介绍为本项目背书，感谢支持！
+
+
+
+## 根据Docker 镜像  添加启动参数适配mvp
+
+你可以从Docker Hub下载已经编译好的镜像并启动它：
+
+### docker启动
+#此镜像为github action 持续集成自动编译推送，跟代码(master分支)保持最新状态
+#一定要映射rtp媒体流传输（包括发送和接收）端口范围
+```bash
+docker run -d --name zlmediakit --restart unless-stopped -p 1935:1935 -p 8080:80 -p 8443:443 -p 8554:554 -p 10000:10000 -p 10000:10000/udp -p 8001:8000/udp -p 9000:9000/udp -p 40000-40110:40000-40110/udp -p 40000-40110:40000-40110 -p 50000-50100:50000-50100/udp -p 50000-50100:50000-50100 -v E:/workspace/hanwei/github/fpy-ZLMediaKit/ZLMediaKit/conf:/opt/media/conf -v E:/workspace/hanwei/github/fpy-ZLMediaKit/ZLMediaKit/record:/opt/media/bin/www/record zlmediakit/zlmediakit:master
+```
+
+#搭配zlm_webassist前端项目，访问前端页面url后面一定要加上secret，http://localhost:8080/?secret=ibwdVRZwzOxmTc8QZFR6tAJnGhMRMB1Q
+```bash
+# 如果使用镜像名:tag
+docker run -d --name zlmediakit --restart unless-stopped -p 1935:1935 -p 8080:80 -p 8443:443 -p 8554:554 -p 10000:10000 -p 10000:10000/udp -p 8001:8000/udp -p 9000:9000/udp -p 40000-40050:40000-40050/udp -p 40000-40050:40000-40050 -p 50000-50050:50000-50050/udp -p 50000-50050:50000-50050 -v E:/workspace/hanwei/github/fpy-ZLMediaKit/ZLMediaKit/conf:/opt/media/conf -v E:/workspace/hanwei/github/fpy-ZLMediaKit/ZLMediaKit/record:/opt/media/bin/www/record -v E:/workspace/hanwei/github/fpy-1002victor/zlm_webassist:/opt/media/bin/www zlmediakit/zlmediakit:master
+
+# 如果使用镜像ID
+docker run -d --name zlmediakit --restart unless-stopped -p 1935:1935 -p 8080:80 -p 8443:443 -p 8554:554 -p 10000:10000 -p 10000:10000/udp -p 8001:8000/udp -p 9000:9000/udp -p 40000-40050:40000-40050/udp -p 40000-40050:40000-40050 -p 50000-50050:50000-50050/udp -p 50000-50050:50000-50050 -v E:/workspace/hanwei/github/fpy-ZLMediaKit/ZLMediaKit/conf:/opt/media/conf -v E:/workspace/hanwei/github/fpy-ZLMediaKit/ZLMediaKit/record:/opt/media/bin/www/record -v E:/workspace/hanwei/github/fpy-1002victor/zlm_webassist:/opt/media/bin/www 镜像ID
+```
+
+### 级联docker启动--上级zlm
+```bash
+docker run -d --name zlmediakit_cascade --restart unless-stopped -p 1936:1935 -p 8081:80 -p 8444:443 -p 8555:554 -p 10001:10000 -p 10001:10000/udp -p 8002:8000/udp -p 9001:9000/udp -p 40111-40210:40111-40210/udp -p 40111-40210:40111-40210 -p 55000-55100:55000-55100/udp -p 55000-55100:55000-55100 -v E:/workspace/hanwei/github/fpy-ZLMediaKit/ZLMediaKit/conf/config_cascade.ini:/opt/media/conf/config.ini zlmediakit/zlmediakit:master
+```
+
+#搭配zlm_webassist前端项目，访问前端页面url后面一定要加上secret，http://localhost:8081/?secret=ibwdVRZwzOxmTc8QZFR6tAJnGhMRMB1Q
+```bash
+docker run -d --name zlmediakit_cascade --restart unless-stopped -p 1936:1935 -p 8081:80 -p 8444:443 -p 8555:554 -p 10001:10000 -p 10001:10000/udp -p 8002:8000/udp -p 9001:9000/udp -p 40111-40210:40111-40210/udp -p 40111-40210:40111-40210 -p 55000-55050:55000-55050/udp -p 55000-55050:55000-55050 -v E:/workspace/hanwei/github/fpy-ZLMediaKit/ZLMediaKit/conf/config_cascade.ini:/opt/media/conf/config.ini -v E:/workspace/hanwei/github/fpy-1002victor/zlm_webassist:/opt/media/bin/www zlmediakit/zlmediakit:master
+```
+
+
+## 使用 wiki https://github.com/ZLMediaKit/ZLMediaKit/wiki
+
+### 推流播放  https://github.com/ZLMediaKit/ZLMediaKit/wiki/ZLMediaKit%E6%8E%A8%E6%B5%81%E6%B5%8B%E8%AF%95
+wvp得zlm推流需要添加认证参数。
+
+#### wvp创建一个拉流代理
+设备rtsp地址为：rtsp://admin:hw1234567@192.168.9.80/Streaming/Channels/101
+zlmrtsp地址为：rtsp://192.168.61.76:8554/00/00
+
+#### ffmpeg推流
+rtsp流地址后面要加上参数sign=41db35390ddad33f83944f44b8b75ded，其中41db35390ddad33f83944f44b8b75ded是user表中push_key md5加密后得值
+ffmpeg -re -i "rtsp://192.168.61.76:8554/00/00" -vcodec h264 -acodec aac -f rtsp -rtsp_transport tcp rtsp://192.168.61.76:8554/live/test?sign=41db35390ddad33f83944f44b8b75ded
+
+ffmpeg -re -i rtsp://admin:hw1234567@192.168.9.80/Streaming/Channels/101 -c copy -f rtsp -rtsp_transport tcp rtsp://localhost:8554/live/test/101?sign=41db35390ddad33f83944f44b8b75ded
+
+ffmpeg -re -i rtsp://admin:HWznjt12345@@192.168.9.47/Streaming/Channels/101 -c copy -f rtsp -rtsp_transport tcp rtsp://localhost:8554/live/test/101?sign=41db35390ddad33f83944f44b8b75ded
+
+##### 直接cpoy
+ffmpeg -re -i rtsp://admin:HWznjt12345@@192.168.9.47/Streaming/Channels/101 -c copy -f flv rtmp://192.168.61.76:1935/live/test/101?sign=41db35390ddad33f83944f44b8b75ded
+
+##### 降低画质
+ffmpeg -re -i rtsp://admin:hw1234567@192.168.9.80/Streaming/Channels/101 -c:v libx264 -x264opts keyint=50:min-keyint=25:no-scenecut -c:a aac -f flv rtmp://localhost:1935/live/test/101?sign=41db35390ddad33f83944f44b8b75ded
+
+##### 增大rtmp_buffer 解决推流中断
+ffmpeg -re -i rtsp://admin:hw1234567@192.168.9.80/Streaming/Channels/101 -c copy -f flv -rtmp_buffer 1000000 -rtmp_live live rtmp://localhost:1935/live/test/101?sign=41db35390ddad33f83944f44b8b75ded
+
+### 播放规则  https://github.com/ZLMediaKit/ZLMediaKit/wiki/%E6%92%AD%E6%94%BEurl%E8%A7%84%E5%88%99
+ffplay rtsp://192.168.61.76:8554/live/test
+
+ffplay http://192.168.61.76:8080/stream/live/dec_u1TAApuU/hls.m3u8
+
+## trouble shot
+
+### windows不支持network host方式，可以在linux上测试
+```bash
+docker run -id -d --network host -v E:/workspace/hanwei/github/fpy-ZLMediaKit/ZLMediaKit/conf:/opt/media/conf zlmediakit/zlmediakit:master
+```
+
+### 修改wvp和zlm配置
+~~修改对应hook的ip地址为wvp的实际ip地址（应该是sdp交互的，看看怎么设置，外挂后会同步为127.0.0.1，需要先停止修改对应ip后再启动）~~，已解决配置文件可以配置对应得ip
+wvp中media.secret配置zlm的api.secret对应值
+wvp中media.id和zlm的general.mediaServerId一致
+
+
+## 音视频
+![img.png](images/音视频流.jpg)
+
+## 编码格式
+
+### 视频
+### h.264
+https://www.itu.int/rec/T-REC-H.264 文档下载
+
+### h.264
+https://www.itu.int/rec/T-REC-H.265 文档下载
+
+
+
+## 封装/容器格式
+
+### mp4
+![img.png](images/mp4视频封装格式.png)
+![img.png](images/各个box关系（层级包含）.png)
+
+https://blog.csdn.net/fanyun_01/article/details/113484964?spm=1001.2101.3001.6661.1&utm_medium=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7EOPENSEARCH%7EPaidSort-1-113484964-blog-135211102.235%5Ev43%5Epc_blog_bottom_relevance_base4&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-2%7Edefault%7EOPENSEARCH%7EPaidSort-1-113484964-blog-135211102.235%5Ev43%5Epc_blog_bottom_relevance_base4&utm_relevant_index=1
+
+
+
+## 传输封装流程
+
+### 视频
+![img.png](images/传输协议格式单元.png)
+
+#### hls  
+原始数据--编码格式--nalu--mpeg-ts--传输格式hls
+
+#### rtsp
+原始数据--编码格式--nalu--rtp--传输格式rtsp
+
+#### rtmp
+原始数据--编码格式--nalu--flv/其它--传输格式rtmp
+
+#### http-flv
+原始数据--编码格式--nalu--flv--传输格式http
+
+#### srt
+原始数据--编码格式--nalu--传输格式rtp
+
+#### webrtc
+原始数据--编码格式--nalu--传输格式rtp
+
+### 音频
+
+#### AAC 
+##### 数据格式类型
+1. 裸流格式 (Raw AAC)
+   最基本的 AAC 数据格式
+   仅包含 AAC 编码的音频数据，无额外封装
+   通常用于容器格式内部
+2. ADTS 格式 (Audio Data Transport Stream)
+   最常见的 AAC 封装格式，具有以下特点：
+   每帧都有 7 或 9 字节的头部
+   支持流式传输
+   包含同步信息和音频参数
+3. ADIF 格式 (Audio Data Interchange Format)
+   主要用于文件存储
+   具有全局头部，包含整个文件的音频配置
+   不适合流式传输
